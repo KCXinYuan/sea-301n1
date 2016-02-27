@@ -1,5 +1,7 @@
-// TODO: Wrap the entire contents of this file in an IIFE.
+// Done: Wrap the entire contents of this file in an IIFE.
 // Pass in to the IIFE a module, upon which objects can be attached for later access.
+(function(module){
+
 function Article (opts) {
   this.author = opts.author;
   this.authorUrl = opts.authorUrl;
@@ -38,7 +40,7 @@ Article.loadAll = function(rawData) {
 
 // This function will retrieve the data from either a local or remote source,
 // and process it, then hand off control to the View.
-// TODO: Refactor this function, so it accepts an argument of a callback function (likely a view function)
+// Done: Refactor this function, so it accepts an argument of a callback function (likely a view function)
 // to execute once the loading of articles is done.
 Article.fetchAll = function() {
   if (localStorage.rawData) {
@@ -49,31 +51,51 @@ Article.fetchAll = function() {
       Article.loadAll(rawData);
       localStorage.rawData = JSON.stringify(rawData); // Cache the json, so we don't need to request it next time.
       articleView.initIndexPage();
+      next();
     });
   }
 };
 
-// TODO: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
+// Done: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
 Article.numWordsAll = function() {
   return Article.all.map(function(article) {
-    return // Get the total number of words in this article
+    return article.body.match(/\b\w+/g).length;// Get the total number of words in this article
   })
   .reduce(function(a, b) {
-    return // Sum up all the values in the collection
+    return a+b;// Sum up all the values in the collection
   })
 };
 
-// TODO: Chain together a `map` and a `reduce` call to produce an array of unique author names.
+// Done: Chain together a `map` and a `reduce` call to produce an array of unique author names.
 Article.allAuthors = function() {
-  return // Don't forget to read the docs on map and reduce!
+  return Article.all.map(function(article) {
+    return article.author;
+  })
+  .reduce(function(names,name) {
+    if (names.indexOf(name) === -1) {
+      names.push(name);
+    }
+    return names;
+  }, []);// Don't forget to read the docs on map and reduce!
 };
 
 Article.numWordsByAuthor = function() {
-  // TODO: Transform each author string into an object with 2 properties: One for
+  // Done: Transform each author string into an object with 2 properties: One for
   // the author's name, and one for the total number of words across all articles written by the specified author.
   return Article.allAuthors().map(function(author) {
     return {
+      name: author,
+      numWords: Article.all.filter(function(words) {
+        return words.author === author;
+      })
+      .map(function(x) {
+        return x.body.match(/\b\w+/g).length
+      })
+      .reduce(function(a,b) {
+        return a+b;
+      })
       // someKey: someValOrFunctionCall().map(...).reduce(...), ...
     }
   })
 };
+})(window);
