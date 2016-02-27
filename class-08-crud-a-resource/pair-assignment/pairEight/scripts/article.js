@@ -76,8 +76,10 @@
   Article.prototype.updateRecord = function(callback) {
     webDB.execute(
       [
-        'sql':'UPDATE articles SET title = ?, author = ?, authorUrl = ?, category = ?, publishedOn = ?, body = ? WHERE id = ?;',
+        {
+        'sql': 'UPDATE articles SET title = ?, author = ?, authorUrl = ?, category = ?, publishedOn = ?, body = ? WHERE id = ?;',
         'data':[this.title, this.author, this.authorUrl, this.category, this.publishedOn, this.body, this.id]
+        }
       ],
       callback
     );
@@ -94,13 +96,13 @@
   // we need to retrieve the JSON and process it.
   // If the DB has data already, we'll load up the data (sorted!), and then hand off control to the View.
   Article.fetchAll = function(next) {
-    webDB.execute('SELECT FROM articles ORDER BY publishedOn DESC', function(rows) {
+    webDB.execute('SELECT * FROM articles ORDER BY publishedOn DESC', function(rows) {
       if (rows.length) {
         // Now instanitate those rows with the .loadAll function, and pass control to the view.
         Articles.loadAll(rows);
         next();
       } else {
-        $.getJSON('/data/hackerIpsum.json', function(rawData) {
+        $.getJSON('data/hackerIpsum.json', function(rawData) {
           // Cache the json, so we don't need to request it next time:
           rawData.forEach(function(item) {
             var article = new Article(item); // Instantiate an article based on item from JSON
