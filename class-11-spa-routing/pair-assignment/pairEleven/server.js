@@ -3,6 +3,13 @@ var requestProxy = require('express-request-proxy'),
   port = process.env.PORT || 3000,
   app = express();
 
+app.use(function(req, res, next){
+ res.header("Access-Control-Allow-Origin", "*")
+ res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+ res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+ next()
+})
+
 var proxyGitHub = function(request, response) {
   console.log('Routing GitHub request for', request.params[0]);
   (requestProxy({
